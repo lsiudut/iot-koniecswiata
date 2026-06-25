@@ -31,7 +31,7 @@ ethernet:
   ncol_pin: GPIO14
   ndpx_pin: GPIO21
   nspd_pin: GPIO47
-  polling_interval: 10ms
+  interrupt_pin: GPIO9
 
 # WiFi fallback is not enabled here because ESPHome's ethernet component
 # currently conflicts with the wifi component at config-validation time.
