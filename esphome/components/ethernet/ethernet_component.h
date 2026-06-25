@@ -54,6 +54,9 @@ class EthernetComponent final : public Component {
   void set_cs_pin(uint8_t cs_pin) { this->cs_pin_ = cs_pin; }
   void set_interrupt_pin(uint8_t interrupt_pin) { this->interrupt_pin_ = interrupt_pin; }
   void set_reset_pin(uint8_t reset_pin) { this->reset_pin_ = reset_pin; }
+  void set_ncol_pin(uint8_t ncol_pin) { this->ncol_pin_ = ncol_pin; }
+  void set_nspd_pin(uint8_t nspd_pin) { this->nspd_pin_ = nspd_pin; }
+  void set_ndpx_pin(uint8_t ndpx_pin) { this->ndpx_pin_ = ndpx_pin; }
   void set_clock_speed(int clock_speed) { this->clock_speed_ = clock_speed; }
   void set_interface(spi_host_device_t interface) { this->interface_ = interface; }
 #ifdef USE_ETHERNET_SPI_POLLING_SUPPORT
@@ -108,6 +111,9 @@ class EthernetComponent final : public Component {
   uint8_t cs_pin_{0};
   int interrupt_pin_{-1};
   int reset_pin_{-1};
+  int ncol_pin_{-1};
+  int nspd_pin_{-1};
+  int ndpx_pin_{-1};
   int clock_speed_{26670000};
   spi_host_device_t interface_{SPI2_HOST};
 #ifdef USE_ETHERNET_SPI_POLLING_SUPPORT

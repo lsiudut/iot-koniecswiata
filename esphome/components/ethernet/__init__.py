@@ -37,6 +37,9 @@ LOGGER = logging.getLogger(__name__)
 
 CONF_CLOCK_SPEED = "clock_speed"
 CONF_INTERFACE = "interface"
+CONF_NCOL_PIN = "ncol_pin"
+CONF_NSPD_PIN = "nspd_pin"
+CONF_NDPX_PIN = "ndpx_pin"
 
 ethernet_ns = cg.esphome_ns.namespace("ethernet")
 EthernetComponent = ethernet_ns.class_("EthernetComponent", cg.Component)
@@ -132,6 +135,9 @@ CONFIG_SCHEMA = cv.All(
                     cv.Required(CONF_CS_PIN): pins.internal_gpio_output_pin_number,
                     cv.Optional(CONF_INTERRUPT_PIN): pins.internal_gpio_input_pin_number,
                     cv.Optional(CONF_RESET_PIN): pins.internal_gpio_output_pin_number,
+                    cv.Optional(CONF_NCOL_PIN): pins.internal_gpio_input_pin_number,
+                    cv.Optional(CONF_NSPD_PIN): pins.internal_gpio_input_pin_number,
+                    cv.Optional(CONF_NDPX_PIN): pins.internal_gpio_input_pin_number,
                     cv.Optional(CONF_INTERFACE): cv.enum(SPI_INTERFACE_MAP, lower=True),
                     cv.SplitDefault(CONF_CLOCK_SPEED, esp32="26.67MHz"): cv.All(
                         cv.only_on_esp32,
@@ -189,6 +195,12 @@ async def to_code(config):
 
     if CONF_RESET_PIN in config:
         cg.add(var.set_reset_pin(config[CONF_RESET_PIN]))
+    if CONF_NCOL_PIN in config:
+        cg.add(var.set_ncol_pin(config[CONF_NCOL_PIN]))
+    if CONF_NSPD_PIN in config:
+        cg.add(var.set_nspd_pin(config[CONF_NSPD_PIN]))
+    if CONF_NDPX_PIN in config:
+        cg.add(var.set_ndpx_pin(config[CONF_NDPX_PIN]))
 
     if CONF_MANUAL_IP in config:
         cg.add_define("USE_ETHERNET_MANUAL_IP")

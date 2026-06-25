@@ -13,10 +13,25 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "esp_event.h"
+#include "esp_rom_gpio.h"
 
 namespace esphome::ethernet {
 
 static const char *const TAG = "ethernet";
+
+static void configure_optional_input_pin(int pin) {
+  if (pin < 0)
+    return;
+  esp_rom_gpio_pad_select_gpio(pin);
+  gpio_set_direction(static_cast<gpio_num_t>(pin), GPIO_MODE_INPUT);
+  gpio_set_pull_mode(static_cast<gpio_num_t>(pin), GPIO_FLOATING);
+}
+
+static const char *active_low_state(int pin, const char *active, const char *inactive) {
+  if (pin < 0)
+    return "not configured";
+  return gpio_get_level(static_cast<gpio_num_t>(pin)) == 0 ? active : inactive;
+}
 
 void EthernetComponent::log_error_and_mark_failed_(esp_err_t err, const char *message) {
   ESP_LOGE(TAG, "%s: (%d) %s", message, err, esp_err_to_name(err));
@@ -114,6 +129,10 @@ void EthernetComponent::ethernet_lazy_init_() {
 
   esp_err_t err = spi_bus_initialize(this->interface_, &buscfg, SPI_DMA_CH_AUTO);
   ESPHL_ERROR_CHECK(err, "SPI bus initialize error");
+
+  configure_optional_input_pin(this->ncol_pin_);
+  configure_optional_input_pin(this->nspd_pin_);
+  configure_optional_input_pin(this->ndpx_pin_);
 
   esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
   this->eth_netif_ = esp_netif_new(&cfg);
@@ -219,6 +238,15 @@ void EthernetComponent::dump_config() {
                 "  Reset Pin: %d\n"
                 "  Clock Speed: %d MHz",
                 this->reset_pin_, this->clock_speed_ / 1000000);
+  if (this->ncol_pin_ >= 0) {
+    ESP_LOGCONFIG(TAG, "  nCOL Pin: %d (%s)", this->ncol_pin_, active_low_state(this->ncol_pin_, "collision", "idle"));
+  }
+  if (this->nspd_pin_ >= 0) {
+    ESP_LOGCONFIG(TAG, "  nSPD Pin: %d (%s)", this->nspd_pin_, active_low_state(this->nspd_pin_, "100M", "10M"));
+  }
+  if (this->ndpx_pin_ >= 0) {
+    ESP_LOGCONFIG(TAG, "  nDPX Pin: %d (%s)", this->ndpx_pin_, active_low_state(this->ndpx_pin_, "full", "half"));
+  }
   this->dump_connect_params_();
 }
 
