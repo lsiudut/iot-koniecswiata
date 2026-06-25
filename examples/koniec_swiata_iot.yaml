@@ -17,6 +17,8 @@ logger:
 
 api:
 
+web_server:
+
 ota:
   - platform: esphome
 

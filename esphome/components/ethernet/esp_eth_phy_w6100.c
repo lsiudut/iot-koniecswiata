@@ -68,6 +68,20 @@ err:
   return ESP_FAIL;
 }
 
+static esp_err_t w6100_set_link(esp_eth_phy_t *phy, eth_link_t link) {
+  phy_w6100_t *w6100 = __containerof(phy, phy_w6100_t, parent);
+  esp_eth_mediator_t *eth = w6100->eth;
+
+  if (w6100->link_status != link) {
+    w6100->link_status = link;
+    PHY_CHECK(eth->on_state_changed(eth, ETH_STATE_LINK, (void *) w6100->link_status) == ESP_OK,
+              "change link failed", err);
+  }
+  return ESP_OK;
+err:
+  return ESP_FAIL;
+}
+
 static esp_err_t w6100_reset(esp_eth_phy_t *phy) {
   phy_w6100_t *w6100 = __containerof(phy, phy_w6100_t, parent);
   esp_eth_mediator_t *eth = w6100->eth;
@@ -97,10 +111,37 @@ static esp_err_t w6100_reset_hw(esp_eth_phy_t *phy) {
   return ESP_OK;
 }
 
-static esp_err_t w6100_negotiate(esp_eth_phy_t *phy) {
+static esp_err_t w6100_autonego_ctrl(esp_eth_phy_t *phy, eth_phy_autoneg_cmd_t cmd, bool *autonego_en_stat) {
   phy_w6100_t *w6100 = __containerof(phy, phy_w6100_t, parent);
-  PHY_CHECK(w6100_update_link_duplex_speed(w6100) == ESP_OK, "update link duplex speed failed", err);
+  esp_eth_mediator_t *eth = w6100->eth;
+
+  PHY_CHECK(autonego_en_stat, "autonegotiation status can't be null", err_arg);
+
+  switch (cmd) {
+    case ESP_ETH_PHY_AUTONEGO_RESTART:
+    case ESP_ETH_PHY_AUTONEGO_EN:
+      w6100->link_status = ETH_LINK_DOWN;
+      PHY_CHECK(eth->phy_reg_write(eth, w6100->addr, W6100_REG_PHYLCKR, W6100_PHY_UNLOCK) == ESP_OK,
+                "unlock PHY failed", err);
+      PHY_CHECK(eth->phy_reg_write(eth, w6100->addr, W6100_REG_PHYCR0, W6100_PHYCR0_AUTO) == ESP_OK,
+                "write PHYCR0 failed", err);
+      PHY_CHECK(eth->phy_reg_write(eth, w6100->addr, W6100_REG_PHYCR1, W6100_PHYCR1_RST) == ESP_OK,
+                "write PHYCR1 failed", err);
+      vTaskDelay(pdMS_TO_TICKS(70));
+      *autonego_en_stat = true;
+      break;
+    case ESP_ETH_PHY_AUTONEGO_DIS:
+      return ESP_ERR_NOT_SUPPORTED;
+    case ESP_ETH_PHY_AUTONEGO_G_STAT:
+      *autonego_en_stat = true;
+      break;
+    default:
+      return ESP_ERR_INVALID_ARG;
+  }
+
   return ESP_OK;
+err_arg:
+  return ESP_ERR_INVALID_ARG;
 err:
   return ESP_FAIL;
 }
@@ -146,6 +187,14 @@ static esp_err_t w6100_del(esp_eth_phy_t *phy) {
 
 static esp_err_t w6100_advertise_pause_ability(esp_eth_phy_t *phy, uint32_t ability) { return ESP_OK; }
 
+static esp_err_t w6100_loopback(esp_eth_phy_t *phy, bool enable) { return ESP_ERR_NOT_SUPPORTED; }
+
+static esp_err_t w6100_set_speed(esp_eth_phy_t *phy, eth_speed_t speed) { return ESP_ERR_NOT_SUPPORTED; }
+
+static esp_err_t w6100_set_duplex(esp_eth_phy_t *phy, eth_duplex_t duplex) { return ESP_ERR_NOT_SUPPORTED; }
+
+static esp_err_t w6100_custom_ioctl(esp_eth_phy_t *phy, int cmd, void *data) { return ESP_ERR_NOT_SUPPORTED; }
+
 static esp_err_t w6100_init(esp_eth_phy_t *phy) {
   PHY_CHECK(w6100_pwrctl(phy, true) == ESP_OK, "power control failed", err);
   PHY_CHECK(w6100_reset(phy) == ESP_OK, "reset failed", err);
@@ -173,11 +222,17 @@ esp_eth_phy_t *esp_eth_phy_new_w6100(const eth_phy_config_t *config) {
   w6100->parent.init = w6100_init;
   w6100->parent.deinit = w6100_deinit;
   w6100->parent.set_mediator = w6100_set_mediator;
+  w6100->parent.autonego_ctrl = w6100_autonego_ctrl;
   w6100->parent.get_link = w6100_get_link;
+  w6100->parent.set_link = w6100_set_link;
   w6100->parent.pwrctl = w6100_pwrctl;
   w6100->parent.get_addr = w6100_get_addr;
   w6100->parent.set_addr = w6100_set_addr;
   w6100->parent.advertise_pause_ability = w6100_advertise_pause_ability;
+  w6100->parent.loopback = w6100_loopback;
+  w6100->parent.set_speed = w6100_set_speed;
+  w6100->parent.set_duplex = w6100_set_duplex;
+  w6100->parent.custom_ioctl = w6100_custom_ioctl;
   w6100->parent.del = w6100_del;
   return &w6100->parent;
 err:

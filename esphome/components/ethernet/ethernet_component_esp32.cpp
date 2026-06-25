@@ -134,6 +134,11 @@ void EthernetComponent::ethernet_lazy_init_() {
   configure_optional_input_pin(this->nspd_pin_);
   configure_optional_input_pin(this->ndpx_pin_);
 
+  err = esp_netif_init();
+  ESPHL_ERROR_CHECK(err, "ETH netif init error");
+  err = esp_event_loop_create_default();
+  ESPHL_ERROR_CHECK(err, "ETH event loop error");
+
   esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
   this->eth_netif_ = esp_netif_new(&cfg);
   if (this->eth_netif_ == nullptr) {
@@ -200,7 +205,12 @@ void EthernetComponent::ethernet_lazy_init_() {
   err = esp_eth_ioctl(this->eth_handle_, ETH_CMD_S_MAC_ADDR, mac_addr);
   ESPHL_ERROR_CHECK(err, "set mac address error");
 
-  err = esp_netif_attach(this->eth_netif_, esp_eth_new_netif_glue(this->eth_handle_));
+  esp_eth_netif_glue_handle_t glue = esp_eth_new_netif_glue(this->eth_handle_);
+  if (glue == nullptr) {
+    this->log_error_and_mark_failed_(ESP_ERR_NO_MEM, "ETH netif glue create error");
+    return;
+  }
+  err = esp_netif_attach(this->eth_netif_, glue);
   ESPHL_ERROR_CHECK(err, "ETH netif attach error");
 
   err = esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &EthernetComponent::eth_event_handler, nullptr);
