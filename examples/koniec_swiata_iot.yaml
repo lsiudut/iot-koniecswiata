@@ -22,6 +22,48 @@ web_server:
 ota:
   - platform: esphome
 
+i2c:
+  sda: GPIO8
+  scl: GPIO18
+  scan: true
+
+sensor:
+  - platform: lm75b
+    name: Board Temperature
+    address: 0x48
+    update_interval: 30s
+
+binary_sensor:
+  - platform: gpio
+    name: Board Temperature Alarm
+    pin:
+      number: GPIO38
+      mode: INPUT_PULLUP
+      inverted: true
+    entity_category: diagnostic
+
+output:
+  - platform: gpio
+    id: relay_1_output
+    pin: GPIO17
+  - platform: gpio
+    id: relay_2_output
+    pin: GPIO16
+
+button:
+  - platform: template
+    name: Relay 1
+    on_press:
+      - output.turn_on: relay_1_output
+      - delay: 250ms
+      - output.turn_off: relay_1_output
+  - platform: template
+    name: Relay 2
+    on_press:
+      - output.turn_on: relay_2_output
+      - delay: 250ms
+      - output.turn_off: relay_2_output
+
 ethernet:
   type: W6100
   mosi_pin: GPIO11
@@ -32,6 +74,7 @@ ethernet:
   ndpx_pin: GPIO21
   nspd_pin: GPIO47
   interrupt_pin: GPIO9
+#  polling_interval: 10ms
 
 # WiFi fallback is not enabled here because ESPHome's ethernet component
 # currently conflicts with the wifi component at config-validation time.

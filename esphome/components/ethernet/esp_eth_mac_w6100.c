@@ -311,7 +311,9 @@ static void emac_w6100_task(void *arg) {
   uint32_t length = 0;
   while (1) {
     if (emac->int_gpio_num >= 0) {
-      ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+      if (ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1000)) == 0 && gpio_get_level(emac->int_gpio_num) != 0) {
+        continue;
+      }
     } else {
       vTaskDelay(pdMS_TO_TICKS(emac->poll_period_ms));
     }
