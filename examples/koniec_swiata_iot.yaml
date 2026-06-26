@@ -1,6 +1,10 @@
 esphome:
   name: koniec-swiata-iot
   friendly_name: Koniec Swiata IoT
+  on_boot:
+    priority: -100
+    then:
+      - script.execute: status_led_idle
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -16,6 +20,7 @@ external_components:
 logger:
 
 api:
+  reboot_timeout: 0s
 
 web_server:
 
@@ -31,7 +36,13 @@ sensor:
   - platform: lm75b
     name: Board Temperature
     address: 0x48
-    update_interval: 30s
+    accuracy_decimals: 2
+    update_interval: 5s
+    entity_category: diagnostic
+  - platform: internal_temperature
+    name: ESP32 Internal Temperature
+    update_interval: 10s
+    entity_category: diagnostic
 
 binary_sensor:
   - platform: gpio
@@ -49,17 +60,47 @@ output:
   - platform: gpio
     id: relay_2_output
     pin: GPIO16
+  - platform: gpio
+    id: status_led_output
+    pin: GPIO48
+
+script:
+  - id: status_led_idle
+    mode: restart
+    then:
+      - while:
+          condition:
+            lambda: return true;
+          then:
+            - output.turn_on: status_led_output
+            - delay: 1000ms
+            - output.turn_off: status_led_output
+            - delay: 1000ms
+  - id: status_led_relay_feedback
+    mode: restart
+    then:
+      - script.stop: status_led_idle
+      - repeat:
+          count: 3
+          then:
+            - output.turn_on: status_led_output
+            - delay: 100ms
+            - output.turn_off: status_led_output
+            - delay: 100ms
+      - script.execute: status_led_idle
 
 button:
   - platform: template
     name: Relay 1
     on_press:
+      - script.execute: status_led_relay_feedback
       - output.turn_on: relay_1_output
       - delay: 250ms
       - output.turn_off: relay_1_output
   - platform: template
     name: Relay 2
     on_press:
+      - script.execute: status_led_relay_feedback
       - output.turn_on: relay_2_output
       - delay: 250ms
       - output.turn_off: relay_2_output

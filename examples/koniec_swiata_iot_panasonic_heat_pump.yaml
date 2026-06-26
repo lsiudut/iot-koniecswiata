@@ -1,0 +1,136 @@
+# Koniec Swiata IoT - Panasonic heat pump UART example.
+#
+# This example prepares the board for a Panasonic heat pump component connected
+# through the dual galvanically isolated UART HAT. Relays are intentionally not
+# configured in this file.
+#
+# Board serial interfaces:
+# - Level-shifted UART, not used here: TX GPIO5, RX GPIO4
+# - RS485/Modbus adapter, not used here: TX GPIO15, RX GPIO6, RTS/DE GPIO7
+# - Isolated UART HAT:
+#   UART1 TX GPIO39, RX GPIO40 - heat pump main/control bus
+#   UART2 TX GPIO41, RX GPIO42 - optional secondary/service bus
+#
+# Add the third-party ESPHome Panasonic/Aquarea component that matches your
+# heat-pump interface below. ESPHome supports GitHub external components, for
+# example:
+#
+# external_components:
+#   - source: github://OWNER/REPOSITORY@main
+#     components: [panasonic_heat_pump]
+#
+# Then add the component's YAML block and point it at uart_id: heat_pump_uart.
+# The exact component name and options depend on the Panasonic interface module
+# used, so this file keeps only the board wiring active.
+
+esphome:
+  name: koniec-swiata-panasonic
+  friendly_name: Koniec Swiata Panasonic Heat Pump
+  on_boot:
+    priority: -100
+    then:
+      - script.execute: status_led_idle
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+external_components:
+  - source:
+      type: local
+      path: ../esphome/components
+    components: [ethernet]
+
+logger:
+
+api:
+  reboot_timeout: 0s
+
+web_server:
+
+ota:
+  - platform: esphome
+
+i2c:
+  sda: GPIO8
+  scl: GPIO18
+  scan: true
+
+sensor:
+  - platform: lm75b
+    name: Board Temperature
+    address: 0x48
+    accuracy_decimals: 2
+    update_interval: 30s
+    entity_category: diagnostic
+  - platform: internal_temperature
+    name: ESP32 Internal Temperature
+    update_interval: 60s
+    entity_category: diagnostic
+
+binary_sensor:
+  - platform: gpio
+    name: Board Temperature Alarm
+    pin:
+      number: GPIO38
+      mode: INPUT_PULLUP
+      inverted: true
+    entity_category: diagnostic
+
+output:
+  - platform: gpio
+    id: status_led_output
+    pin: GPIO48
+
+script:
+  - id: status_led_idle
+    mode: restart
+    then:
+      - while:
+          condition:
+            lambda: return true;
+          then:
+            - output.turn_on: status_led_output
+            - delay: 1000ms
+            - output.turn_off: status_led_output
+            - delay: 1000ms
+
+uart:
+  # Main isolated UART for the Panasonic module.
+  - id: heat_pump_uart
+    tx_pin: GPIO39
+    rx_pin: GPIO40
+    baud_rate: 9600
+    data_bits: 8
+    parity: NONE
+    stop_bits: 1
+    rx_buffer_size: 512
+  # Spare isolated UART. Leave unused unless the selected Panasonic module
+  # requires a second channel.
+  - id: heat_pump_aux_uart
+    tx_pin: GPIO41
+    rx_pin: GPIO42
+    baud_rate: 9600
+    data_bits: 8
+    parity: NONE
+    stop_bits: 1
+    rx_buffer_size: 512
+
+# Example shape after selecting an external Panasonic component:
+#
+# climate:
+#   - platform: panasonic_heat_pump
+#     name: Panasonic Heat Pump
+#     uart_id: heat_pump_uart
+
+ethernet:
+  type: W6100
+  mosi_pin: GPIO11
+  miso_pin: GPIO13
+  clk_pin: GPIO12
+  cs_pin: GPIO10
+  ncol_pin: GPIO14
+  ndpx_pin: GPIO21
+  nspd_pin: GPIO47
+  interrupt_pin: GPIO9
