@@ -1,27 +1,16 @@
-# Koniec Swiata IoT - Panasonic heat pump UART example.
+# Koniec Swiata IoT - Panasonic Aquarea heat pump through ESPHome Heishamon.
 #
-# This example prepares the board for a Panasonic heat pump component connected
-# through the dual galvanically isolated UART HAT. Relays are intentionally not
-# configured in this file.
+# This example uses the ESPHome component referenced in the Home Assistant
+# thread:
+# https://github.com/ElVit/esphome_components/tree/main/components/panasonic_heatpump
 #
-# Board serial interfaces:
-# - Level-shifted UART, not used here: TX GPIO5, RX GPIO4
-# - RS485/Modbus adapter, not used here: TX GPIO15, RX GPIO6, RTS/DE GPIO7
-# - Isolated UART HAT:
-#   UART1 TX GPIO39, RX GPIO40 - heat pump main/control bus
-#   UART2 TX GPIO41, RX GPIO42 - optional secondary/service bus
+# It expects the dual galvanically isolated UART HAT:
+# - UART1 TX GPIO39, RX GPIO40: ESP <-> Panasonic CN-CNT heat pump port
+# - UART2 TX GPIO41, RX GPIO42: ESP <-> optional CZ-TAW1/WiFi module passthrough
 #
-# Add the third-party ESPHome Panasonic/Aquarea component that matches your
-# heat-pump interface below. ESPHome supports GitHub external components, for
-# example:
-#
-# external_components:
-#   - source: github://OWNER/REPOSITORY@main
-#     components: [panasonic_heat_pump]
-#
-# Then add the component's YAML block and point it at uart_id: heat_pump_uart.
-# The exact component name and options depend on the Panasonic interface module
-# used, so this file keeps only the board wiring active.
+# CN-CNT uses a 5 V UART signal. Keep galvanic isolation / level translation in
+# place; do not connect the heat pump UART directly to ESP32-S3 pins.
+# Relays are intentionally not configured in this file.
 
 esphome:
   name: koniec-swiata-panasonic
@@ -41,6 +30,10 @@ external_components:
       type: local
       path: ../esphome/components
     components: [ethernet]
+  - source:
+      type: git
+      url: https://github.com/ElVit/esphome_components/
+    components: [panasonic_heatpump]
 
 logger:
 
@@ -69,6 +62,214 @@ sensor:
     update_interval: 60s
     entity_category: diagnostic
 
+  # Panasonic TOP values exposed by ElVit/esphome_components. These names match
+  # the upstream example so comparison with HeishaMon documentation is direct.
+  - platform: panasonic_heatpump
+    top1:
+      name: Pump Flow
+    top5:
+      name: Main Inlet Temp
+    top6:
+      name: Main Outlet Temp
+    top7:
+      name: Main Target Temp
+    top8:
+      name: Compressor Freq
+    top9:
+      name: DHW Target Temp
+    top10:
+      name: DHW Temp
+    top11:
+      name: Operations Hours
+    top12:
+      name: Operations Counter
+    top14:
+      name: Outside Temp
+    top15:
+      name: Heat Power Production
+    top16:
+      name: Heat Power Consumption
+    top21:
+      name: Outside Pipe Temp
+    top22:
+      name: DHW Heat Delta
+    top23:
+      name: Heat Delta
+    top24:
+      name: Cool Delta
+    top25:
+      name: DHW Holiday Shift Temp
+    top27:
+      name: Z1 Heat Request Temp
+    top28:
+      name: Z1 Cool Request Temp
+    top29:
+      name: Z1 Heat Curve Target High Temp
+    top30:
+      name: Z1 Heat Curve Target Low Temp
+    top31:
+      name: Z1 Heat Curve Outside High Temp
+    top32:
+      name: Z1 Heat Curve Outside Low Temp
+    top33:
+      name: Room Thermostat Temp
+    top34:
+      name: Z2 Heat Request Temp
+    top35:
+      name: Z2 Cool Request Temp
+    top36:
+      name: Z1 Water Temp
+    top37:
+      name: Z2 Water Temp
+    top38:
+      name: Cool Power Production
+    top39:
+      name: Cool Power Consumption
+    top40:
+      name: DHW Power Production
+    top41:
+      name: DHW Power Consumption
+    top42:
+      name: Z1 Water Target Temp
+    top43:
+      name: Z2 Water Target Temp
+    top45:
+      name: Room Holiday Shift Temp
+    top46:
+      name: Buffer Temp
+    top47:
+      name: Solar Temp
+    top48:
+      name: Pool Temp
+    top49:
+      name: Main Hex Outlet Temp
+    top50:
+      name: Discharge Temp
+    top51:
+      name: Inside Pipe Temp
+    top52:
+      name: Defrost Temp
+    top53:
+      name: Eva Outlet Temp
+    top54:
+      name: Bypass Outlet Temp
+    top55:
+      name: Ipm Temp
+    top56:
+      name: Z1 Temp
+    top57:
+      name: Z2 Temp
+    top62:
+      name: Fan1 Motor Speed
+    top63:
+      name: Fan2 Motor Speed
+    top64:
+      name: High Pressure
+    top65:
+      name: Pump Speed
+    top66:
+      name: Low Pressure
+    top67:
+      name: Compressor Current
+    top70:
+      name: Sterilization Temp
+    top71:
+      name: Sterilization Max Time
+    top72:
+      name: Z1 Cool Curve Target High Temp
+    top73:
+      name: Z1 Cool Curve Target Low Temp
+    top74:
+      name: Z1 Cool Curve Outside High Temp
+    top75:
+      name: Z1 Cool Curve Outside Low Temp
+    top77:
+      name: Heating Off Outdoor Temp
+    top78:
+      name: Heater On Outdoor Temp
+    top79:
+      name: Heat To Cool Temp
+    top80:
+      name: Cool To Heat Temp
+    top82:
+      name: Z2 Heat Curve Target High Temp
+    top83:
+      name: Z2 Heat Curve Target Low Temp
+    top84:
+      name: Z2 Heat Curve Outside High Temp
+    top85:
+      name: Z2 Heat Curve Outside Low Temp
+    top86:
+      name: Z2 Cool Curve Target High Temp
+    top87:
+      name: Z2 Cool Curve Target Low Temp
+    top88:
+      name: Z2 Cool Curve Outside High Temp
+    top89:
+      name: Z2 Cool Curve Outside Low Temp
+    top90:
+      name: Room Heater Operations Hours
+    top91:
+      name: DHW Heater Operations Hours
+    top93:
+      name: Pump Duty
+    top95:
+      name: Max Pump Duty
+    top96:
+      name: Heater Delay Time
+    top97:
+      name: Heater Start Delta
+    top98:
+      name: Heater Stop Delta
+    top102:
+      name: Solar On Delta
+    top103:
+      name: Solar Off Delta
+    top104:
+      name: Solar Frost Protection
+    top105:
+      name: Solar High Limit
+    top113:
+      name: Buffer Tank Delta
+    top115:
+      name: Water Pressure
+    top116:
+      name: Second Inlet Temp
+    top117:
+      name: Economizer Outlet Temp
+    top118:
+      name: Second Room Thermostat Temp
+    top127:
+      name: Z1 Valve PID
+    top128:
+      name: Z2 Valve PID
+    top131:
+      name: Bivalent Start Temperature
+    top134:
+      name: Bivalent Advanced Start Temp
+    top135:
+      name: Bivalent Advanced Stop Temp
+    top136:
+      name: Bivalent Advanced Start Delay
+    top137:
+      name: Bivalent Advanced Stop Delay
+    top138:
+      name: Bivalent Advanced DHW Delay
+    top142:
+      name: Expansion Valve
+    xtop0:
+      name: Heat Power Consumption Extra
+    xtop1:
+      name: Cool Power Consumption Extra
+    xtop2:
+      name: DHW Power Consumption Extra
+    xtop3:
+      name: Heat Power Production Extra
+    xtop4:
+      name: Cool Power Production Extra
+    xtop5:
+      name: DHW Power Production Extra
+
 binary_sensor:
   - platform: gpio
     name: Board Temperature Alarm
@@ -77,6 +278,251 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: true
     entity_category: diagnostic
+
+  - platform: panasonic_heatpump
+    uart_client_timed_out:
+      name: Panasonic UART Client Timed Out
+      entity_category: diagnostic
+    top0:
+      name: Heatpump State
+    top2:
+      name: Force DHW State
+    top3:
+      name: Quiet Mode Schedule
+    top13:
+      name: Main Schedule State
+    top26:
+      name: Defrosting State
+    top60:
+      name: Internal Heater State
+    top61:
+      name: External Heater State
+    top68:
+      name: Force Heater State
+    top69:
+      name: Sterilization State
+    top99:
+      name: Buffer Installed
+    top100:
+      name: DHW Installed
+    top108:
+      name: Alt External Sensor
+    top109:
+      name: Anti Freeze Mode
+    top110:
+      name: Optional PCB
+    top119:
+      name: External Control
+    top120:
+      name: External Heat Cool Control
+    top121:
+      name: External Error Signal
+    top122:
+      name: External Compressor Control
+    top123:
+      name: Z2 Pump State
+    top124:
+      name: Z1 Pump State
+    top129:
+      name: Bivalent Control
+    top132:
+      name: Bivalent Advanced Heat
+    top133:
+      name: Bivalent Advanced DHW
+
+text_sensor:
+  - platform: panasonic_heatpump
+    top4:
+      name: Operating Mode State
+    top17:
+      name: Powerful Mode Time
+    top18:
+      name: Quiet Mode Level
+    top19:
+      name: Holiday Mode State
+    top20:
+      name: ThreeWay Valve State
+    top44:
+      name: Error
+    top58:
+      name: DHW Heater State
+    top59:
+      name: Room Heater State
+    top76:
+      name: Heating Mode
+    top81:
+      name: Cooling Mode
+    top92:
+      name: Heat Pump Model
+    top94:
+      name: Zones State
+    top101:
+      name: Solar Mode
+    top106:
+      name: Pump Flowrate Mode
+    top107:
+      name: Liquid Type
+    top111:
+      name: Z1 Sensor Settings
+    top112:
+      name: Z2 Sensor Settings
+    top114:
+      name: External Pad Heater
+    top125:
+      name: TwoWay Valve State
+    top126:
+      name: ThreeWay Valve State 2
+    top130:
+      name: Bivalent Mode
+    top139:
+      name: Heating Control
+    top140:
+      name: Smart DHW
+    top141:
+      name: Quiet Mode Priority
+    top143:
+      name: DHW Sensor Selection
+
+number:
+  - platform: panasonic_heatpump
+    set5:
+      name: Set Z1 Heat Request Temperature
+    set6:
+      name: Set Z1 Cool Request Temperature
+    set7:
+      name: Set Z2 Heat Request Temperature
+    set8:
+      name: Set Z2 Cool Request Temperature
+    set11:
+      name: Set DHW Temp
+    set15:
+      name: Set Max Pump Duty
+    set16_01:
+      name: Set Zone 1 Heat Target High
+    set16_02:
+      name: Set Zone 1 Heat Target Low
+    set16_03:
+      name: Set Zone 1 Heat Outside Low
+    set16_04:
+      name: Set Zone 1 Heat Outside High
+    set16_05:
+      name: Set Zone 2 Heat Target High
+    set16_06:
+      name: Set Zone 2 Heat Target Low
+    set16_07:
+      name: Set Zone 2 Heat Outside Low
+    set16_08:
+      name: Set Zone 2 Heat Outside High
+    set16_09:
+      name: Set Zone 1 Cool Target High
+    set16_10:
+      name: Set Zone 1 Cool Target Low
+    set16_11:
+      name: Set Zone 1 Cool Outside Low
+    set16_12:
+      name: Set Zone 1 Cool Outside High
+    set16_13:
+      name: Set Zone 2 Cool Target High
+    set16_14:
+      name: Set Zone 2 Cool Target Low
+    set16_15:
+      name: Set Zone 2 Cool Outside Low
+    set16_16:
+      name: Set Zone 2 Cool Outside High
+    set18:
+      name: Set Floor Heat Delta
+    set19:
+      name: Set Floor Cool Delta
+    set20:
+      name: Set DHW Heat Delta
+    set21:
+      name: Set Heater Delay Time
+    set22:
+      name: Set Heater Start Delta
+    set23:
+      name: Set Heater Stop Delta
+    set27:
+      name: Set Buffer Delta
+    set29:
+      name: Set Heating Off Outdoor Temp
+    set36:
+      name: Set Bivalent Start Temp
+    set37:
+      name: Set Bivalent Advanced Start Temp
+    set38:
+      name: Set Bivalent Advanced Stop Temp
+    set46:
+      name: Set Heater On Outdoor Temp
+
+switch:
+  - platform: panasonic_heatpump
+    set1:
+      name: Set Heatpump
+    set10:
+      name: Set Force DHW
+    set12:
+      name: Set Force Defrost
+    set13:
+      name: Set Force Sterilization
+    set14:
+      name: Set Pump
+    set24:
+      name: Set Main Schedule
+    set25:
+      name: Set Alt External Sensor
+    set28:
+      name: Set Buffer
+    set30:
+      name: Set External Control
+    set31:
+      name: Set External Error
+    set32:
+      name: Set External Compressor Control
+    set33:
+      name: Set External Heat Cool Control
+    set34:
+      name: Set Bivalent Control
+    error_reset:
+      name: Error Reset (Restart Heatpump)
+
+select:
+  - platform: panasonic_heatpump
+    cool_mode: true
+    set2:
+      name: Set Holiday Mode
+    set3:
+      name: Set Quiet Mode
+    set4:
+      name: Set Powerful Mode
+    set9:
+      name: Set Operation Mode
+    set17:
+      name: Set Zones
+    set26:
+      name: Set External Pad Heater
+    set35:
+      name: Set Bivalent Mode
+    set39:
+      name: Set Heating Control
+    set40:
+      name: Set Smart DHW
+    set41:
+      name: Set Quiet Mode Priority
+    set42:
+      name: Set Pump Flow Rate Mode
+
+climate:
+  - platform: panasonic_heatpump
+    cool_mode: true
+    zone1:
+      name: Zone 1
+    zone2:
+      name: Zone 2
+
+water_heater:
+  - platform: panasonic_heatpump
+    tank:
+      name: DHW
 
 output:
   - platform: gpio
@@ -97,32 +543,36 @@ script:
             - delay: 1000ms
 
 uart:
-  # Main isolated UART for the Panasonic module.
-  - id: heat_pump_uart
+  # UART to the Panasonic heat pump CN-CNT port. ESP TX goes to heat pump RX;
+  # ESP RX reads heat pump TX.
+  - id: uart_heatpump
     tx_pin: GPIO39
     rx_pin: GPIO40
     baud_rate: 9600
     data_bits: 8
-    parity: NONE
+    parity: EVEN
     stop_bits: 1
     rx_buffer_size: 512
-  # Spare isolated UART. Leave unused unless the selected Panasonic module
-  # requires a second channel.
-  - id: heat_pump_aux_uart
+  # Optional passthrough UART for CZ-TAW1 or another CN-CNT client. The
+  # panasonic_heatpump component relays frames between this UART and the pump.
+  - id: uart_cz_taw1
     tx_pin: GPIO41
     rx_pin: GPIO42
     baud_rate: 9600
     data_bits: 8
-    parity: NONE
+    parity: EVEN
     stop_bits: 1
     rx_buffer_size: 512
 
-# Example shape after selecting an external Panasonic component:
-#
-# climate:
-#   - platform: panasonic_heat_pump
-#     name: Panasonic Heat Pump
-#     uart_id: heat_pump_uart
+panasonic_heatpump:
+  id: my_heatpump
+  uart_id: uart_heatpump
+  uart_client_id: uart_cz_taw1
+  # Set to true temporarily when validating wiring. It logs every 203-byte
+  # Panasonic frame and is noisy on a working installation.
+  log_uart_msg: false
+  update_interval: 3s
+  uart_client_timeout: 10s
 
 ethernet:
   type: W6100
