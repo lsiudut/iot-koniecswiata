@@ -59,30 +59,389 @@ sensor:
     update_interval: 60s
     entity_category: diagnostic
 
-  # Add Thessla Green read-only values after confirming the register map.
-  # Keep address/register_type/value_type aligned with the unit documentation.
-  #
-  # - platform: modbus_controller
-  #   modbus_controller_id: thessla
-  #   name: Supply Air Temperature
-  #   register_type: read
-  #   address: 0x0000
-  #   value_type: S_WORD
-  #   unit_of_measurement: "°C"
-  #   accuracy_decimals: 1
-  #   device_class: temperature
-  #   state_class: measurement
-  #   filters:
-  #     - multiply: 0.1
-  # - platform: modbus_controller
-  #   modbus_controller_id: thessla
-  #   name: Fan Speed
-  #   register_type: read
-  #   address: 0x0001
-  #   value_type: U_WORD
-  #   unit_of_measurement: "%"
-  #   accuracy_decimals: 0
-  #   state_class: measurement
+  # 04 - READ INPUT REGISTERS. These are read-only runtime values from the
+  # AirPack4 controller. Temperature registers use signed words scaled by 0.1.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Controller Firmware Major
+    register_type: read
+    address: 0x0000
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Controller Firmware Minor
+    register_type: read
+    address: 0x0001
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Current Day Of Week
+    register_type: read
+    address: 0x0002
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Current Schedule Period
+    register_type: read
+    address: 0x0003
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Controller Firmware Patch
+    register_type: read
+    address: 0x0004
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Firmware Compilation Days
+    register_type: read
+    address: 0x000E
+    value_type: U_WORD
+    unit_of_measurement: d
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Firmware Compilation Seconds
+    register_type: read
+    address: 0x000F
+    value_type: U_WORD
+    unit_of_measurement: s
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Outside Air Temperature
+    register_type: read
+    address: 0x0010
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: temperature
+    state_class: measurement
+    filters: &thessla_temperature_filters
+      - multiply: 0.1
+      - lambda: |-
+          // The official protocol uses raw 0x8000 to mean "no reading".
+          if (x > 3000.0f) return NAN;
+          return x;
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Supply Air Temperature
+    register_type: read
+    address: 0x0011
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: temperature
+    state_class: measurement
+    filters: *thessla_temperature_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Exhaust Air Temperature
+    register_type: read
+    address: 0x0012
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: temperature
+    state_class: measurement
+    filters: *thessla_temperature_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: FPX Air Temperature
+    register_type: read
+    address: 0x0013
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: temperature
+    state_class: measurement
+    filters: *thessla_temperature_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Duct Supply Temperature
+    register_type: read
+    address: 0x0014
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: temperature
+    state_class: measurement
+    filters: *thessla_temperature_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Temperature
+    register_type: read
+    address: 0x0015
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: temperature
+    state_class: measurement
+    filters: *thessla_temperature_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Ambient Temperature
+    register_type: read
+    address: 0x0016
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_class: temperature
+    state_class: measurement
+    filters: *thessla_temperature_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Serial Number Word 1
+    register_type: read
+    address: 0x0018
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Serial Number Word 2
+    register_type: read
+    address: 0x0019
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Serial Number Word 3
+    register_type: read
+    address: 0x001A
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Serial Number Word 4
+    register_type: read
+    address: 0x001B
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Serial Number Word 5
+    register_type: read
+    address: 0x001C
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Serial Number Word 6
+    register_type: read
+    address: 0x001D
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Supply Ventilation Setpoint
+    register_type: read
+    address: 0x0110
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    state_class: measurement
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Exhaust Ventilation Setpoint
+    register_type: read
+    address: 0x0111
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    state_class: measurement
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Supply Flow Setpoint
+    register_type: read
+    address: 0x0112
+    value_type: U_WORD
+    unit_of_measurement: "m³/h"
+    accuracy_decimals: 0
+    state_class: measurement
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Exhaust Flow Setpoint
+    register_type: read
+    address: 0x0113
+    value_type: U_WORD
+    unit_of_measurement: "m³/h"
+    accuracy_decimals: 0
+    state_class: measurement
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Minimum Ventilation Setpoint
+    register_type: read
+    address: 0x0114
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Maximum Ventilation Setpoint
+    register_type: read
+    address: 0x0115
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+
+  # 03 - READ HOLDING REGISTERS used as read-only diagnostic sensors.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: CF Module Version Raw
+    register_type: holding
+    address: 0x00F0
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Expansion Module Version Raw
+    register_type: holding
+    address: 0x00F1
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Supply Air Flow
+    register_type: holding
+    address: 0x0100
+    value_type: U_WORD
+    unit_of_measurement: "m³/h"
+    accuracy_decimals: 0
+    state_class: measurement
+    filters: &thessla_flow_filters
+      - lambda: |-
+          // 65535 means Constant Flow is inactive or unavailable.
+          if (x > 65000.0f) return NAN;
+          return x;
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Exhaust Air Flow
+    register_type: holding
+    address: 0x0101
+    value_type: U_WORD
+    unit_of_measurement: "m³/h"
+    accuracy_decimals: 0
+    state_class: measurement
+    filters: *thessla_flow_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Supply Fan Control Voltage
+    register_type: holding
+    address: 0x0500
+    value_type: U_WORD
+    unit_of_measurement: V
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
+    filters: &thessla_dac_filters
+      - multiply: 0.00244
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Exhaust Fan Control Voltage
+    register_type: holding
+    address: 0x0501
+    value_type: U_WORD
+    unit_of_measurement: V
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
+    filters: *thessla_dac_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Heater Control Voltage
+    register_type: holding
+    address: 0x0502
+    value_type: U_WORD
+    unit_of_measurement: V
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
+    filters: *thessla_dac_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Cooler Control Voltage
+    register_type: holding
+    address: 0x0503
+    value_type: U_WORD
+    unit_of_measurement: V
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
+    filters: *thessla_dac_filters
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Antifreeze Stage
+    register_type: holding
+    address: 0x1066
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Current Mode
+    register_type: holding
+    address: 0x10A7
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Comfort Mode Status
+    register_type: holding
+    address: 0x10D1
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Bypass Mode Status
+    register_type: holding
+    address: 0x10EA
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Stop Alarm Code
+    register_type: holding
+    address: 0x1120
+    value_type: U_WORD
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Supply Filter Wear
+    register_type: holding
+    address: 0x1182
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Exhaust Filter Wear
+    register_type: holding
+    address: 0x1183
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Required Comfort Temperature
+    register_type: holding
+    address: 0x1FFE
+    value_type: U_WORD
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    filters:
+      - multiply: 0.5
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Filter Type
+    register_type: holding
+    address: 0x1FFF
+    value_type: U_WORD
+    entity_category: diagnostic
 
 binary_sensor:
   - platform: gpio
@@ -92,6 +451,963 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: true
     entity_category: diagnostic
+
+  # 01 - READ COILS. These are controller output states, exposed read-only.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Duct Water Heater Pump Output
+    register_type: coil
+    address: 0x0005
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Bypass Damper Output
+    register_type: coil
+    address: 0x0009
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Unit Work Confirmation Output
+    register_type: coil
+    address: 0x000A
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Fan Power Output
+    register_type: coil
+    address: 0x000B
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Heating Cable Output
+    register_type: coil
+    address: 0x000C
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Expansion Work Permit Output
+    register_type: coil
+    address: 0x000D
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Output
+    register_type: coil
+    address: 0x000E
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Hood Damper Output
+    register_type: coil
+    address: 0x000F
+    entity_category: diagnostic
+
+  # 02 - READ DISCRETE INPUTS. These are physical input states on the unit.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Duct Heater Protection Input
+    register_type: discrete_input
+    address: 0x0000
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Expansion Module Communication
+    register_type: discrete_input
+    address: 0x0001
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Duct Filter Pressure Input
+    register_type: discrete_input
+    address: 0x0003
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Hood Input
+    register_type: discrete_input
+    address: 0x0004
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Air Quality Sensor Input
+    register_type: discrete_input
+    address: 0x0005
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Humidity Sensor Input
+    register_type: discrete_input
+    address: 0x0006
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Airing Switch Input
+    register_type: discrete_input
+    address: 0x0007
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AirS Airing Input
+    register_type: discrete_input
+    address: 0x000A
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AirS Fan Speed 3 Input
+    register_type: discrete_input
+    address: 0x000B
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AirS Fan Speed 2 Input
+    register_type: discrete_input
+    address: 0x000C
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AirS Fan Speed 1 Input
+    register_type: discrete_input
+    address: 0x000D
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Fireplace Input
+    register_type: discrete_input
+    address: 0x000E
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Fire Alarm Input
+    register_type: discrete_input
+    address: 0x000F
+    device_class: safety
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AHU Filter Pressure Input
+    register_type: discrete_input
+    address: 0x0012
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AHU Filter Protection Input
+    register_type: discrete_input
+    address: 0x0013
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Empty House Input
+    register_type: discrete_input
+    address: 0x0015
+    entity_category: diagnostic
+
+  # Boolean status registers from holding registers. Alarm bits are R/W in the
+  # protocol because some can be reset, but they are exposed here as read-only
+  # binary sensors; reset writes should be added only after confirming policy.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Constant Flow Active
+    register_type: read
+    address: 0x010F
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Antifreeze Active
+    register_type: holding
+    address: 0x1060
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Regeneration Active
+    register_type: holding
+    address: 0x10AF
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Post Heater Active
+    register_type: holding
+    address: 0x1260
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Any Alarm
+    register_type: holding
+    address: 0x2000
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Any Error
+    register_type: holding
+    address: 0x2001
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S2 I2C Communication Error
+    register_type: holding
+    address: 0x2002
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S6 FPX Thermal Protection
+    register_type: holding
+    address: 0x2006
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S7 Calibration Not Possible
+    register_type: holding
+    address: 0x2007
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S8 Product Key Required
+    register_type: holding
+    address: 0x2008
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S9 Stopped From AirS Panel
+    register_type: holding
+    address: 0x2009
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S10 Fire Alarm Triggered
+    register_type: holding
+    address: 0x200A
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S13 Stopped From Panel
+    register_type: holding
+    address: 0x200D
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S14 Antifreeze Heater Protection
+    register_type: holding
+    address: 0x200E
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S15 Antifreeze Heater Protection
+    register_type: holding
+    address: 0x200F
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S16 Heater Thermal Protection
+    register_type: holding
+    address: 0x2010
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S17 Supply Filter Not Replaced
+    register_type: holding
+    address: 0x2011
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S19 Exhaust Filter Not Replaced
+    register_type: holding
+    address: 0x2013
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S20 Duct Filter Not Replaced
+    register_type: holding
+    address: 0x2014
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S22 FPX Protection Failed
+    register_type: holding
+    address: 0x2016
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S23 FPX Inlet Temperature Sensor Fault
+    register_type: holding
+    address: 0x2017
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S24 Duct Temperature Sensor Fault
+    register_type: holding
+    address: 0x2018
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S25 Outside Temperature Sensor Fault
+    register_type: holding
+    address: 0x2019
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S26 Outside And GWC Temperature Sensor Fault
+    register_type: holding
+    address: 0x201A
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S28 Post Heater Control Fault
+    register_type: holding
+    address: 0x201C
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S29 High Temperature Before Recuperator
+    register_type: holding
+    address: 0x201D
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S30 Supply Fan Fault
+    register_type: holding
+    address: 0x201E
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S31 Exhaust Fan Fault
+    register_type: holding
+    address: 0x201F
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: S32 TG-02 Communication Fault
+    register_type: holding
+    address: 0x2020
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E99 Product Key Required
+    register_type: holding
+    address: 0x2063
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E100 Outside Intake Temperature Missing
+    register_type: holding
+    address: 0x2064
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E101 Supply Temperature Missing
+    register_type: holding
+    address: 0x2065
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E102 Exhaust Temperature Missing
+    register_type: holding
+    address: 0x2066
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E103 FPX Temperature Missing
+    register_type: holding
+    address: 0x2067
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E104 Ambient Temperature Missing
+    register_type: holding
+    address: 0x2068
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E105 Duct Supply Temperature Missing
+    register_type: holding
+    address: 0x2069
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E106 GWC Temperature Missing
+    register_type: holding
+    address: 0x206A
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E108 Heat Exchanger Temperature Missing
+    register_type: holding
+    address: 0x206C
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E138 Supply Fan CF Sensor Fault
+    register_type: holding
+    address: 0x208A
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E139 Exhaust Fan CF Sensor Fault
+    register_type: holding
+    address: 0x208B
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E140 Supply Filter CF Sensor Fault
+    register_type: holding
+    address: 0x208C
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E141 Exhaust Filter CF Sensor Fault
+    register_type: holding
+    address: 0x208D
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: F142 Supply Filter Missing
+    register_type: holding
+    address: 0x208E
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: F143 Exhaust Filter Missing
+    register_type: holding
+    address: 0x208F
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E144 Supply Fan Flow Control Fault
+    register_type: holding
+    address: 0x2090
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E145 Exhaust Fan Flow Control Fault
+    register_type: holding
+    address: 0x2091
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: F146 Supply Filter Replacement Required
+    register_type: holding
+    address: 0x2092
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: F147 Exhaust Filter Replacement Required
+    register_type: holding
+    address: 0x2093
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E148 Supply Filter Wear Limit
+    register_type: holding
+    address: 0x2094
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E149 Exhaust Filter Wear Limit
+    register_type: holding
+    address: 0x2095
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E150 Supply Filter Replacement Required
+    register_type: holding
+    address: 0x2096
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E151 Exhaust Filter Replacement Required
+    register_type: holding
+    address: 0x2097
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E152 Exhaust Temperature Too High
+    register_type: holding
+    address: 0x2098
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E156 Supply Filter Lifetime Exceeded
+    register_type: holding
+    address: 0x209C
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E157 Exhaust Filter Lifetime Exceeded
+    register_type: holding
+    address: 0x209D
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E196 Installation Calibration Missing
+    register_type: holding
+    address: 0x20C6
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E200 Electric Heater Thermal Protection
+    register_type: holding
+    address: 0x20C8
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E201 Duct Heater Thermal Protection
+    register_type: holding
+    address: 0x20C9
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E202 Post Heater Control Fault
+    register_type: holding
+    address: 0x20CA
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E203 Post Heater Control Fault
+    register_type: holding
+    address: 0x20CB
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E249 Expansion Communication Fault
+    register_type: holding
+    address: 0x20F9
+    device_class: problem
+    entity_category: diagnostic
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: E251 Duct Filter Replacement Required
+    register_type: holding
+    address: 0x20FB
+    device_class: problem
+    entity_category: diagnostic
+
+select:
+  # Writable enum registers that map cleanly to Home Assistant selects.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Operating Mode
+    address: 0x1070
+    value_type: U_WORD
+    optionsmap:
+      Automatic: 0
+      Manual: 1
+      Temporary: 2
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Automatic Schedule Season
+    address: 0x1071
+    value_type: U_WORD
+    optionsmap:
+      Summer: 0
+      Winter: 1
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Special Mode
+    address: 0x1080
+    value_type: U_WORD
+    optionsmap:
+      None: 0
+      Hood: 1
+      Fireplace: 2
+      Airing Bell Switch: 3
+      Airing On Off Switch: 4
+      Airing Hygrostat: 5
+      Airing Air Quality: 6
+      Airing Manual: 7
+      Airing Automatic Schedule: 8
+      Airing Manual Schedule: 9
+      Open Windows: 10
+      Empty House: 11
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Regeneration Type
+    address: 0x10A6
+    value_type: U_WORD
+    optionsmap:
+      Disabled: 0
+      Daily Schedule: 1
+      Temperature Difference: 2
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Comfort Mode
+    address: 0x10D0
+    value_type: U_WORD
+    optionsmap:
+      Eco: 0
+      Comfort: 1
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Bypass User Mode
+    address: 0x10EB
+    value_type: U_WORD
+    optionsmap:
+      Damper Only: 1
+      Damper And Flow Difference: 2
+      Damper And Exhaust Fan Off: 3
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: ERV Post Heater Mode
+    address: 0x1267
+    value_type: U_WORD
+    optionsmap:
+      Disabled: 0
+      Mode 1: 1
+      Mode 2: 2
+
+number:
+  # Writable scalar settings. Temperature setpoints are displayed in degrees C;
+  # multiply: 2 writes the raw half-degree value required by the protocol.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Manual Ventilation Intensity
+    address: 0x1072
+    value_type: U_WORD
+    min_value: 10
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Temporary Ventilation Intensity
+    address: 0x1073
+    value_type: U_WORD
+    min_value: 10
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Manual Supply Temperature Setpoint
+    address: 0x1074
+    value_type: U_WORD
+    min_value: 10
+    max_value: 45
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Temporary Supply Temperature Setpoint
+    address: 0x1075
+    value_type: U_WORD
+    min_value: 10
+    max_value: 45
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AirS Fan Speed 1 Intensity
+    address: 0x1078
+    value_type: U_WORD
+    min_value: 10
+    max_value: 45
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AirS Fan Speed 2 Intensity
+    address: 0x1079
+    value_type: U_WORD
+    min_value: 46
+    max_value: 75
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: AirS Fan Speed 3 Intensity
+    address: 0x107A
+    value_type: U_WORD
+    min_value: 76
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Hood Supply Intensity
+    address: 0x1082
+    value_type: U_WORD
+    min_value: 100
+    max_value: 150
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Hood Exhaust Intensity
+    address: 0x1083
+    value_type: U_WORD
+    min_value: 100
+    max_value: 150
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Fireplace Supply Difference
+    address: 0x1084
+    value_type: U_WORD
+    min_value: 5
+    max_value: 50
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Bathroom Airing Intensity
+    address: 0x1085
+    value_type: U_WORD
+    min_value: 100
+    max_value: 150
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Room Airing Intensity
+    address: 0x1086
+    value_type: U_WORD
+    min_value: 100
+    max_value: 150
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Air Quality Airing Intensity
+    address: 0x1087
+    value_type: U_WORD
+    min_value: 100
+    max_value: 150
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Empty House Intensity
+    address: 0x1088
+    value_type: U_WORD
+    min_value: 10
+    max_value: 50
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Room Airing Time
+    address: 0x1089
+    value_type: U_WORD
+    min_value: 1
+    max_value: 45
+    step: 1
+    unit_of_measurement: min
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Switch Airing Time
+    address: 0x108A
+    value_type: U_WORD
+    min_value: 1
+    max_value: 45
+    step: 1
+    unit_of_measurement: min
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Switch Airing On Delay
+    address: 0x108B
+    value_type: U_WORD
+    min_value: 0
+    max_value: 20
+    step: 1
+    unit_of_measurement: min
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Switch Airing Off Delay
+    address: 0x108C
+    value_type: U_WORD
+    min_value: 0
+    max_value: 20
+    step: 1
+    unit_of_measurement: min
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Fireplace Mode Time
+    address: 0x108D
+    value_type: U_WORD
+    min_value: 1
+    max_value: 10
+    step: 1
+    unit_of_measurement: min
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Airing Switch Intensity
+    address: 0x108E
+    value_type: U_WORD
+    min_value: 100
+    max_value: 150
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Open Window Exhaust Intensity
+    address: 0x108F
+    value_type: U_WORD
+    min_value: 10
+    max_value: 101
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Low Temperature Threshold
+    address: 0x10A1
+    value_type: U_WORD
+    min_value: 0
+    max_value: 10
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC High Temperature Threshold
+    address: 0x10A2
+    value_type: U_WORD
+    min_value: 15
+    max_value: 40
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Regeneration Period
+    address: 0x10A8
+    value_type: U_WORD
+    min_value: 4
+    max_value: 8
+    step: 1
+    unit_of_measurement: h
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: GWC Regeneration Temperature Delta
+    address: 0x10AA
+    value_type: U_WORD
+    min_value: 0
+    max_value: 10
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Minimum Bypass Temperature
+    address: 0x10E1
+    value_type: U_WORD
+    min_value: 5
+    max_value: 20
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Free Heating Temperature
+    address: 0x10E2
+    value_type: U_WORD
+    min_value: 15
+    max_value: 30
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Free Cooling Temperature
+    address: 0x10E3
+    value_type: U_WORD
+    min_value: 15
+    max_value: 30
+    step: 0.5
+    multiply: 2
+    unit_of_measurement: "°C"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Bypass Flow Difference
+    address: 0x10EC
+    value_type: U_WORD
+    min_value: 10
+    max_value: 100
+    step: 1
+    unit_of_measurement: "%"
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Bypass Supply Intensity
+    address: 0x10ED
+    value_type: U_WORD
+    min_value: 10
+    max_value: 151
+    step: 1
+    unit_of_measurement: "%"
+
+switch:
+  # Simple writable booleans. More destructive bits such as reset/product-lock
+  # registers are left as comments below rather than active switches.
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Unit Power
+    register_type: holding
+    address: 0x1123
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Disable GWC
+    register_type: holding
+    address: 0x10A0
+  - platform: modbus_controller
+    modbus_controller_id: thessla
+    name: Disable Bypass
+    register_type: holding
+    address: 0x10E0
 
 output:
   - platform: gpio
@@ -134,9 +1450,26 @@ modbus_controller:
     address: 0x01
     update_interval: 10s
 
-# After verifying the register map, writable controls can be added as
-# modbus_controller number/select/switch entities. Keep write controls disabled
-# until the exact register and value ranges are confirmed for the installed unit.
+# Official AirPack4 Modbus table coverage notes:
+# - Active above: read coils, discrete inputs, runtime input registers, safe
+#   user-facing settings, status flags, and alarm/error flags.
+# - Intentionally not active: packed date/time, schedule, filter-date,
+#   communication-port, product-lock, device-name, access-level, calibration,
+#   and hard-reset registers. Those registers either pack multiple values into
+#   one word, require simultaneous multi-register writes, can change Modbus
+#   communication itself, or can lock/reset/service-calibrate the controller.
+# - If you need schedules, add them as raw holding-register sensors first:
+#
+# sensor:
+#   - platform: modbus_controller
+#     modbus_controller_id: thessla
+#     name: Summer Monday Period 1 Raw Start Time
+#     register_type: holding
+#     address: 0x0010
+#     value_type: U_WORD
+#
+#   The official format is packed BCD [GGMM], for example raw 0x0630 means
+#   06:30 and raw 0xA200 disables an automatic schedule period.
 
 ethernet:
   type: W6100
