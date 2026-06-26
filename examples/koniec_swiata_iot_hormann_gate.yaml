@@ -1,18 +1,30 @@
-# Koniec Swiata IoT - Hormann gate controller example.
+# Koniec Swiata IoT - Hormann / HCPBridge gate controller example.
 #
 # This file keeps the two onboard relay "press" buttons enabled. They can be
-# wired to a second gate or to dry-contact inputs while Modbus is used for the
-# Hormann controller.
+# wired to a second gate or to dry-contact inputs while HCPBridge controls the
+# Hormann motor through the board RS485 interface.
 #
 # Board serial interfaces:
 # - Level-shifted UART, not used here: TX GPIO5, RX GPIO4
-# - RS485/Modbus adapter: TX GPIO15, RX GPIO6, RTS/DE GPIO7
+# - RS485/HCP adapter: TX GPIO15, RX GPIO6, RTS/DE GPIO7
 # - Optional isolated UART HAT, not used here:
 #   UART1 TX GPIO39, RX GPIO40; UART2 TX GPIO41, RX GPIO42
+#
+# HCPBridge upstream:
+# https://github.com/mapero/esphome-hcpbridge
+#
+# The upstream component currently targets Arduino and uses its own Hoermann
+# engine instead of ESPHome's modbus_controller component.
 
 esphome:
   name: koniec-swiata-hormann
   friendly_name: Koniec Swiata Hormann Gate
+  libraries:
+    - emelianov/modbus-esp8266
+  platformio_options:
+    board_build.f_cpu: 240000000L
+    monitor_speed: 9600
+    monitor_filters: esp32_exception_decoder
   on_boot:
     priority: -100
     then:
@@ -21,18 +33,27 @@ esphome:
 esp32:
   board: esp32-s3-devkitc-1
   framework:
-    type: esp-idf
+    type: arduino
 
 external_components:
   - source:
       type: local
       path: ../esphome/components
     components: [ethernet]
+  - source: github://mapero/esphome-hcpbridge
+    components: [hcpbridge]
+    refresh: 0s
 
 logger:
 
 api:
   reboot_timeout: 0s
+  # HCPBridge cover registers extra services:
+  # - esphome.koniec_swiata_hormann_go_to_close
+  # - esphome.koniec_swiata_hormann_go_to_half
+  # - esphome.koniec_swiata_hormann_go_to_vent
+  # - esphome.koniec_swiata_hormann_go_to_open
+  custom_services: true
 
 web_server:
 
@@ -117,55 +138,26 @@ button:
       - delay: 250ms
       - output.turn_off: relay_2_output
 
-uart:
-  # RS485 UART for Hormann Modbus. Adjust baud/parity if the controller manual
-  # or gateway setup says otherwise.
-  id: modbus_uart
-  tx_pin: GPIO15
+hcpbridge:
+  # The board RS485 transceiver is connected to the Hormann HCP bus.
+  # Wire TX/RX according to your adapter direction labels; if the motor never
+  # becomes connected, swap A/B on the RS485 side first.
   rx_pin: GPIO6
-  baud_rate: 9600
-  data_bits: 8
-  parity: EVEN
-  stop_bits: 1
+  tx_pin: GPIO15
+  rts_pin: GPIO7
+  is_connected:
+    name: HCPBridge Connected
+    entity_category: diagnostic
 
-modbus:
-  id: modbus_bus
-  uart_id: modbus_uart
-  flow_control_pin: GPIO7
-  role: client
-  send_wait_time: 250ms
+cover:
+  - platform: hcpbridge
+    name: Garage Door
+    device_class: garage
+    update_interval: 500ms
 
-modbus_controller:
-  # Replace address 0x01 with the slave address configured in the Hormann
-  # Modbus gateway/controller.
-  - id: hormann
-    modbus_id: modbus_bus
-    address: 0x01
-    update_interval: 2s
-
-# The Hormann register map differs by controller/gateway. The entities below
-# are intentionally conservative examples that show where the documented
-# addresses go. Verify every address/register_type before enabling writes.
-#
-# binary_sensor:
-#   - platform: modbus_controller
-#     modbus_controller_id: hormann
-#     name: Gate Open Limit
-#     register_type: discrete_input
-#     address: 0x0000
-#   - platform: modbus_controller
-#     modbus_controller_id: hormann
-#     name: Gate Closed Limit
-#     register_type: discrete_input
-#     address: 0x0001
-#
-# switch:
-#   - platform: modbus_controller
-#     modbus_controller_id: hormann
-#     name: Gate Impulse Command
-#     register_type: coil
-#     address: 0x0000
-#     assumed_state: true
+switch:
+  - platform: hcpbridge
+    name: Garage Light
 
 ethernet:
   type: W6100
