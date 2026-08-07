@@ -6,8 +6,10 @@ in `README.md`. Keep this file focused on implementation invariants, change
 scope, validation, and facts an automated maintainer must not guess.
 
 Before editing, read `README.md`, the complete target YAML, and the relevant
-component source. Do not infer hardware behavior from generic ESP32 or W5500
-examples when this repository records board-specific behavior.
+component source. Read `HARDWARE.md` before changing pin assignments,
+electrical guidance, connectors, power behavior, or board-level assumptions.
+Do not infer hardware behavior from generic ESP32 or W5500 examples when this
+repository records board-specific behavior.
 
 ## Project scope
 
@@ -35,6 +37,8 @@ third-party integration with placeholder registers.
 | `esphome/components/ethernet/esp_eth_w6100.h` | Driver construction API |
 | `esphome/components/ethernet/w6100.h` | W6100 registers, commands, and bit definitions |
 | `examples/*.yaml` | Board-level configurations and integration documentation |
+| `HARDWARE.md` | Human-facing connector, electrical, and power source of truth |
+| `images/connectors.png` | Labelled physical connector reference |
 
 The component intentionally uses the name `ethernet`, replacing ESPHome's
 stock component only for configurations that load this local component. At
@@ -43,7 +47,8 @@ present its schema supports `type: W6100` on ESP32 only.
 ## Hardware contract
 
 Treat this map as a compatibility contract. If a change reassigns a pin, update
-every affected tracked example and `README.md` in the same commit.
+every affected tracked example, `HARDWARE.md`, and the relevant `README.md`
+summary in the same commit.
 
 | Function | GPIO/settings |
 | --- | --- |

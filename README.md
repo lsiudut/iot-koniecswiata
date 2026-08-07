@@ -2,7 +2,8 @@
 
 This is the human-facing guide for installing, configuring, and troubleshooting
 the board. Repository-maintenance instructions for AI/LLM tools live in
-`AGENTS.md`.
+`AGENTS.md`. Connector locations, power architecture, voltage selection, and
+electrical wiring are covered in [`HARDWARE.md`](HARDWARE.md).
 
 This repository provides an ESPHome Ethernet component for the Wiznet W6100
 on ESP32, plus complete configurations for the Koniec Swiata IoT ESP32-S3
@@ -18,6 +19,8 @@ Modbus RTU.
 | Path | Purpose |
 | --- | --- |
 | `esphome/components/ethernet/` | Local ESPHome Ethernet component and W6100 ESP-IDF MAC/PHY driver |
+| [`HARDWARE.md`](HARDWARE.md) | Board connectors, power system, and electrical wiring |
+| [`images/connectors.png`](images/connectors.png) | Labelled connector reference image |
 | [`examples/koniec_swiata_iot.yaml`](examples/koniec_swiata_iot.yaml) | General-purpose Ethernet configuration |
 | [`examples/koniec_swiata_iot_wifi.yaml`](examples/koniec_swiata_iot_wifi.yaml) | WiFi-only configuration |
 | [`examples/koniec_swiata_iot_hormann_gate.yaml`](examples/koniec_swiata_iot_hormann_gate.yaml) | Hormann HCP gate controller and relay buttons |
@@ -38,6 +41,10 @@ external_components:
 Keep that directory relationship when copying or moving an example.
 
 ## Board interfaces and pinout
+
+See [`HARDWARE.md`](HARDWARE.md) before physically wiring or powering the
+board. The summary below maps board functions to firmware pins; it does not
+replace the connector and voltage information in the hardware guide.
 
 The GPIO numbers below are ESP32-S3 GPIO numbers, not connector pin numbers.
 Use the board silkscreen or schematic to identify the corresponding physical
