@@ -1,9 +1,13 @@
-# Maintainer and LLM instructions
+# Instructions for AI and LLM maintainers
 
-This file is the operating guide for humans and automated coding agents
-changing this repository. Read `README.md`, the target YAML, and the relevant
-component source before editing. Do not infer hardware behavior from generic
-ESP32 or W5500 examples when this repository records board-specific behavior.
+This file is specifically for AI/LLM tools and automated coding agents changing
+this repository. Human installation, wiring, and normal troubleshooting belong
+in `README.md`. Keep this file focused on implementation invariants, change
+scope, validation, and facts an automated maintainer must not guess.
+
+Before editing, read `README.md`, the complete target YAML, and the relevant
+component source. Do not infer hardware behavior from generic ESP32 or W5500
+examples when this repository records board-specific behavior.
 
 ## Project scope
 
@@ -64,7 +68,9 @@ those properties.
 ## W6100 design constraints
 
 - Socket 0 runs in W6100 MACRAW mode.
-- ESP32-S3 defaults to SPI2 and 26.67 MHz.
+- ESP32-S3 defaults to SPI2 and 26.67 MHz. The physical board has been
+  validated at 80 MHz through `clock_speed: 80MHz`; this is supported, even
+  though the conservative default remains unchanged.
 - `interrupt_pin` and `polling_interval` are mutually exclusive.
 - When neither is supplied, supported ESP-IDF versions receive the 10 ms
   polling default. Older unsupported IDF versions require an interrupt pin.
@@ -206,6 +212,8 @@ Hardware validation for W6100 changes should include:
 - unplug/replug link recovery;
 - packet traffic under interrupt mode and 10 ms polling where relevant;
 - status-pin logging at negotiated speed/duplex;
+- both the default 26.67 MHz SPI clock and the board-validated 80 MHz clock for
+  SPI transport, timing, or buffer-management changes;
 - no regressions in relay, I2C, and the active serial interface.
 
 A successful compile does not prove Ethernet interrupt handling works. Ask for

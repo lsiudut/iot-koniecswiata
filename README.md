@@ -1,5 +1,9 @@
 # ESPHome W6100 support for Koniec Swiata IoT
 
+This is the human-facing guide for installing, configuring, and troubleshooting
+the board. Repository-maintenance instructions for AI/LLM tools live in
+`AGENTS.md`.
+
 This repository provides an ESPHome Ethernet component for the Wiznet W6100
 on ESP32, plus complete configurations for the Koniec Swiata IoT ESP32-S3
 board. The Ethernet implementation uses the W6100 in MACRAW mode, following
@@ -55,7 +59,9 @@ the Ethernet cable.
 | nDPX | GPIO21 | Input | Active-low full-duplex indication |
 | nSPD | GPIO47 | Input | Active-low 100 Mbit/s indication |
 
-The local component defaults to SPI2 on ESP32-S3 and a 26.67 MHz SPI clock.
+The local component defaults to SPI2 on ESP32-S3 and a conservative 26.67 MHz
+SPI clock. The W6100 has also been validated at 80 MHz on this board. To use
+the validated higher clock, add `clock_speed: 80MHz` to the `ethernet:` block.
 The current board examples do not configure a W6100 reset pin.
 
 The optional `nCOL`, `nDPX`, and `nSPD` inputs are diagnostics. ESPHome prints
