@@ -107,11 +107,12 @@ stateful switches. A press energizes the output for 250 ms and then releases
 it. This suits gate and garage-door controller inputs that expect a brief dry
 contact closure.
 
-Before wiring a relay, identify its COM, NO, and NC terminals from the board
-markings. A typical button simulation uses COM and NO in parallel with the
-existing push button. Disconnect power before wiring and verify the contact
-voltage/current rating. Do not assume the contacts are suitable for mains or
-for directly driving a motor.
+Each CPC1017 solid-state relay is exposed as one two-terminal contact:
+`REL1`/`REL1` or `REL2`/`REL2`. There are no COM, NO, or NC terminals. Wire one
+pair in parallel with the existing low-voltage push button; activating the
+relay briefly joins the two terminals like a physical button press. Disconnect
+power before wiring and do not use these signal contacts for mains voltage or
+to drive a motor directly.
 
 ### Serial and field buses
 
