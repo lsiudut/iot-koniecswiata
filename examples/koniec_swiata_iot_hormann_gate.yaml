@@ -36,9 +36,7 @@ esp32:
     type: arduino
 
 external_components:
-  - source:
-      type: local
-      path: ../esphome/components
+  - source: github://lsiudut/iot-koniecswiata
     components: [ethernet]
   - source: github://mapero/esphome-hcpbridge
     components: [hcpbridge]

@@ -26,9 +26,7 @@ esp32:
     type: esp-idf
 
 external_components:
-  - source:
-      type: local
-      path: ../esphome/components
+  - source: github://lsiudut/iot-koniecswiata
     components: [ethernet]
   - source:
       type: git

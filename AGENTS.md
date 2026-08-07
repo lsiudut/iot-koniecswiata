@@ -41,8 +41,8 @@ third-party integration with placeholder registers.
 | `images/connectors.png` | Labelled physical connector reference |
 
 The component intentionally uses the name `ethernet`, replacing ESPHome's
-stock component only for configurations that load this local component. At
-present its schema supports `type: W6100` on ESP32 only.
+stock component only for configurations that load this repository as an
+external component. At present its schema supports `type: W6100` on ESP32 only.
 
 ## Hardware contract
 
@@ -172,8 +172,11 @@ Relays are intentionally absent from this example.
    documented third-party device, use its maintained component when feasible.
 4. Keep edits scoped. Hardware-wide changes may need all examples; use-case
    changes generally belong in only one example.
-5. Validate the exact changed examples. A local component path is relative to
-   the YAML, so run commands from the repository root as shown below.
+5. Validate the exact changed examples. Tracked examples fetch the component
+   from `github://lsiudut/iot-koniecswiata`, which tests the published default
+   branch. For uncommitted driver changes, temporarily switch the test YAML to
+   `source: {type: local, path: ../esphome/components}` and do not commit that
+   temporary override.
 6. Review the generated diff and status. Do not add build directories,
    `examples/secrets.yaml`, personal configurations, or unrelated files.
 7. Commit coherent progress with a specific message when requested by the

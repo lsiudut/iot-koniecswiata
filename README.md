@@ -27,8 +27,18 @@ Modbus RTU.
 | [`examples/koniec_swiata_iot_panasonic_heat_pump.yaml`](examples/koniec_swiata_iot_panasonic_heat_pump.yaml) | Panasonic Aquarea through an isolated dual-UART HAT |
 | [`examples/koniec_swiata_iot_thessla_green.yaml`](examples/koniec_swiata_iot_thessla_green.yaml) | Thessla Green AirPack4 through onboard RS485 |
 
-All example files load the local W6100 component with a path relative to the
-example:
+All example files download the W6100 component from this repository:
+
+```yaml
+external_components:
+  - source: github://lsiudut/iot-koniecswiata
+    components: [ethernet]
+```
+
+ESPHome automatically finds the component under `esphome/components/`. This
+makes copied examples independent of the local checkout layout. When developing
+the driver itself, temporarily use a local source so compilation exercises the
+uncommitted code rather than the latest GitHub revision:
 
 ```yaml
 external_components:
@@ -37,8 +47,6 @@ external_components:
       path: ../esphome/components
     components: [ethernet]
 ```
-
-Keep that directory relationship when copying or moving an example.
 
 ## Board interfaces and pinout
 
