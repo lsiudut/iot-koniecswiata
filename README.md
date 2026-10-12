@@ -211,6 +211,13 @@ Wire the HCP bus through the board RS485 terminals, not directly to the ESP32.
 If `HCPBridge Connected` remains false, first verify motor power and bus mode,
 then GPIO15/GPIO6/GPIO7 ownership, and finally RS485 A/B polarity.
 
+The example also loads `hcpbridge_debug`, a passive diagnostic component from
+this repository. It logs every RS485 frame (address, function, CRC, decoded
+HCP bus-scan/poll/broadcast requests, and the bridge's replies), raw RX edge
+counts, UART break/frame/parity errors, and a 10-second summary with a hint
+for the most likely failing layer. Set `log_frames: false` or remove the
+`hcpbridge_debug:` block once the bus works.
+
 ### Panasonic Aquarea heat pump
 
 `examples/koniec_swiata_iot_panasonic_heat_pump.yaml` uses the

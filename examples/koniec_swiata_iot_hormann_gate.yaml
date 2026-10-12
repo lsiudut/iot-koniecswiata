@@ -37,7 +37,7 @@ esp32:
 
 external_components:
   - source: github://lsiudut/iot-koniecswiata
-    components: [ethernet]
+    components: [ethernet, hcpbridge_debug]
   - source: github://mapero/esphome-hcpbridge
     components: [hcpbridge]
     refresh: 0s
@@ -146,6 +146,15 @@ hcpbridge:
   is_connected:
     name: HCPBridge Connected
     entity_category: diagnostic
+
+# Passive RS485/HCP diagnostics. Logs every frame read from or written to the
+# bus, raw RX edge counts, UART break/frame/parity errors, the slave addresses
+# the motor polls, and a periodic summary with a hint pointing at the most
+# likely layer (wiring, polarity, baud, bus scan, reply path). Set
+# log_frames: false or remove this block once the bus works.
+hcpbridge_debug:
+  log_frames: true
+  report_interval: 10s
 
 cover:
   - platform: hcpbridge
